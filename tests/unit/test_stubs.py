@@ -22,6 +22,7 @@ import time
 from types import ModuleType
 
 from google.cloud.monitoring_v3.proto import metric_service_pb2
+from requests.models import Response
 from slo_generator.utils import load_configs, load_config
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -55,7 +56,8 @@ CTX = {
     'DATADOG_SLO_ID': 'fake',
     'DYNATRACE_API_URL': 'fake',
     'DYNATRACE_API_TOKEN': 'fake',
-    'DYNATRACE_SLO_ID': 'fake'
+    'DYNATRACE_SLO_ID': 'fake',
+    'PROMETHEUS_REMOTE_WRITE_URL': 'http://localhost:9300/api/v1/push'
 }
 
 
@@ -258,6 +260,22 @@ def mock_dt_errors(*args, **kwargs):
 
     elif args[0] == 'put' and args[1] == 'timeseries':
         return load_fixture('dt_error_rate.json')
+
+def mock_prom_remote_response(*args, **kwargs):
+    response_content = None
+    response_content = json.dumps('post response OK')
+    response = Response()
+    response.status_code = 200
+    response._content = str.encode(response_content)
+    return response
+
+def mock_prom_remote_error(*args, **kwargs):
+    response_content = None
+    response_content = json.dumps('post response ERROR')
+    response = Response()
+    response.status_code = 409
+    response._content = str.encode(response_content)
+    return response
 
 
 class dotdict(dict):

@@ -9,7 +9,6 @@ from typing import Dict, Tuple
 
 import requests
 import snappy
-from requests.models import Response
 from slo_generator.exporters.base import MetricsExporter
 from slo_generator.exporters.gen.remote_pb2 import (
     WriteRequest,
@@ -36,6 +35,13 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
     """
 
     REQUIRED_FIELDS = ["url"]
+    OPTIONAL_FIELDS = [
+        "username",
+        "password",
+        "headers",
+        "timeout",
+        "tls_config",
+    ]
 
     def __init__(self) -> None:
 
@@ -47,7 +53,7 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
         self.tls_config: Dict[str, str] = None
         self.basic_auth: Dict[str, str] = None
 
-    def export_metric(self, data: Dict) -> Response:
+    def export_metric(self, data: Dict) -> requests.Response:
         """Export data to Prometheus Remote Write.
 
         Args:
@@ -80,6 +86,8 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
             }
 
         if "headers" in data:
+            if not isinstance(data["headers"], dict):
+                raise ValueError("additional headers must be a Dict[str, str]")
             self.headers = data["headers"]
 
         if "timeout" in data:
@@ -92,6 +100,8 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
             self.timeout = int(data["timeout"])
 
         if "tls_config" in data:
+            if not isinstance(data["tls_config"], dict):
+                raise ValueError("tls_config must be a Dict[str,str]")
             config = {}
             if "ca_file" in data["tls_config"]:
                 config["ca_file"] = data["tls_config"]["ca_file"]
@@ -103,12 +113,16 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
                 config["key_file"] = data["tls_config"]["key_file"]
             elif (
                 "cert_file" in data["tls_config"]
-                and "key_file" in data["tls_config"]
+                and "key_file" not in data["tls_config"]
             ):
                 raise ValueError(
                     "both cert and key are required for custom TLS config"
                 )
             if "insecure_skip_verify" in data["tls_config"]:
+                if not isinstance(
+                    data["tls_config"]["insecure_skip_verify"], bool
+                ):
+                    raise ValueError("insecure_skip_verify must be a boolean")
                 config["insecure_skip_verify"] = data["tls_config"][
                     "insecure_skip_verify"
                 ]
@@ -178,7 +192,7 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
 
     def _send_message(
         self, message: bytes, headers: Dict[str, str]
-    ) -> Response:
+    ) -> requests.Response:
         auth: Tuple[str, str] = None
         if self.basic_auth:
             auth = (
@@ -190,7 +204,6 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
         verify = True
 
         if self.tls_config:
-            print(self.tls_config)
             if "ca_file" in self.tls_config:
                 verify = self.tls_config["ca_file"]
             elif "insecure_skip_verify" in self.tls_config:
@@ -214,7 +227,8 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
             )
             if not response.ok:
                 response.raise_for_status()
+            LOGGER.debug(response.content)
+            return response
         except requests.exceptions.RequestException as err:
             LOGGER.error(f"remote write POST failed: {err}")
-
-        return response
+            return err.response
