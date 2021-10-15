@@ -47,6 +47,16 @@ Install `slo-generator` locally in development mode, so that you can start makin
 make develop
 ```
 
+#### Protobuf
+
+The exporter `prometheus_remote_write` use Protocol Buffers, the .py files are already generated, but you can update or re-generate the files via the Makefile under [slo_generator/exporters/gen](slo_generator/exporters/gen) directory.
+```
+cd slo_generator/exporters/gen
+make generate # dependencies will by automatically download
+```
+
+Protobuf files (.proto) are copy of original files in [Prometheus](https://github.com/prometheus/prometheus) and [gogo/protobuf](https://github.com/gogo/protobuf) repositories.
+
 ### Testing environment
 Unittests are located in the `tests/unit` folder.
 
