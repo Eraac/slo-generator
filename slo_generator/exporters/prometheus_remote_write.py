@@ -18,6 +18,7 @@ from slo_generator.exporters.gen.types_pb2 import (
 )
 
 LOGGER = logging.getLogger(__name__)
+DEFAULT_REMOTE_WRITE_JOB = 'slo-generator'
 
 
 # pylint: disable=too-many-instance-attributes
@@ -52,6 +53,7 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
         self.timeout: int = None
         self.tls_config: Dict[str, str] = None
         self.basic_auth: Dict[str, str] = None
+        self.job_name: str = None
 
     def export_metric(self, data: Dict) -> requests.Response:
         """Export data to Prometheus Remote Write.
@@ -74,6 +76,8 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
         if "url" not in data:
             raise ValueError("remote write URL required")
         self.url = data["url"]
+
+        self.job_name = data.get("job", DEFAULT_REMOTE_WRITE_JOB)
 
         if "username" in data and "password" not in data:
             raise ValueError("must have password for Basic Auth")
@@ -164,6 +168,8 @@ class PrometheusRemoteWriteExporter(MetricsExporter):
 
         # the __name__ label is special: its value is the metric_name
         add_label(label_name="__name__", label_value=name)
+        # add the `job` label
+        add_label(label_name="job", label_value=self.job_name)
 
         for label_key, label_value in labelkeyvalues.items():
             add_label(label_key, label_value)

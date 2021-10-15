@@ -24,7 +24,8 @@ SITELIB = $(shell $(PYTHON) -c "from distutils.sysconfig import get_python_lib; 
 
 VERSION ?= $(shell grep "version = " setup.py | cut -d\  -f3)
 
-FLAKE8_IGNORE = E302,E203,E261,W503  # W503 and W504 are mutually exclusive
+# W503 and W504 are mutually exclusive
+FLAKE8_IGNORE = E302,E203,E261,W503
 
 ########################################################
 
