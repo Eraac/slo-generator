@@ -52,7 +52,7 @@ make develop
 The exporter `prometheus_remote_write` uses Protocol Buffers, the `_pb2.py` stubs are already generated, but you can update or re-generate the files via the Makefile under [slo_generator/exporters/gen](slo_generator/exporters/gen) directory.
 ```
 cd slo_generator/exporters/gen
-make generate # dependencies will by automatically download
+make generate # dependencies will be automatically downloaded
 ```
 
 Protobuf files (.proto) are copies of original files in [Prometheus](https://github.com/prometheus/prometheus) and [gogo/protobuf](https://github.com/gogo/protobuf) repositories.
