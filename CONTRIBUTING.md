@@ -55,7 +55,7 @@ cd slo_generator/exporters/gen
 make generate # dependencies will by automatically download
 ```
 
-Protobuf files (.proto) are copy of original files in [Prometheus](https://github.com/prometheus/prometheus) and [gogo/protobuf](https://github.com/gogo/protobuf) repositories.
+Protobuf files (.proto) are copies of original files in [Prometheus](https://github.com/prometheus/prometheus) and [gogo/protobuf](https://github.com/gogo/protobuf) repositories.
 
 ### Testing environment
 Unittests are located in the `tests/unit` folder.
