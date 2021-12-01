@@ -7,7 +7,7 @@ to specify which metrics should be exported to the destination.
 
 **Metrics** exported by default:
 - `error_budget_burn_rate`: used for alerting.
-- `alerting_burn_rate_threshold`: used for defining the alerting threshold.
+- `error_budget_burn_rate_threshold`: used for defining the alerting threshold.
 - `sli_measurement`: used for visualizing the SLI over time.
 - `slo_target`: used for drawing target over SLI measurement.
 - `events_count`: used to split good / bad events in dashboards. Has two 
